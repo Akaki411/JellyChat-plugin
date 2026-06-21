@@ -4,10 +4,18 @@
 
 https://github.com/user-attachments/assets/69be29fa-b328-45c5-9967-f9582b0dd7d1
 
+The chat UI is a small **React + Vite** app (in [`web-src/`](web-src)) that is
+bundled into a single self-contained `sync-chat.js` file. That file is embedded
+into the plugin assembly and injected into the Jellyfin web client as one
+`<script>` tag. All styling lives in one BEM stylesheet
+([`web-src/src/styles/sync-chat.css`](web-src/src/sync-chat.css)) which
+Vite inlines into the bundle at build time.
+
 ## Pre-requisites
 
 - Jellyfin server compatible with `Jellyfin.Controller` / `Jellyfin.Model` `10.11.8`.
-- .NET SDK 9.0 for building.
+- .NET SDK 9.0 for building the plugin.
+- Node.js 18+ and npm for building the React frontend.
 - Jellyfin [File Transformation](https://github.com/IAmParadox27/jellyfin-plugin-file-transformation) plugin installed and enabled.
     - Without File Transformation, `sync-chat.js` will not be injected into the web client.
 
@@ -50,13 +58,52 @@ Notes:
 - Default `JELLYFIN_DATA_DIR` is `$HOME/Library/Application Support/jellyfin`.
 - Restart Jellyfin after deploy.
 
-## Manual Build and Install
+## Frontend (React + Vite)
 
-Build:
+The chat UI source lives in [`web-src/`](web-src). Building it regenerates the
+embedded bundle at `Jellyfin.Plugin.SyncPlayChat/Web/sync-chat.js`.
+
+Install dependencies once:
 
 ```bash
+cd web-src
+npm install
+```
+
+Build the bundle (writes `../Jellyfin.Plugin.SyncPlayChat/Web/sync-chat.js`):
+
+```bash
+npm run build
+```
+
+Live preview while editing styles/markup (the widget is forced visible because
+there is no Jellyfin `ApiClient` outside the web client; sending is disabled):
+
+```bash
+npm run dev
+```
+
+> Rebuild the frontend whenever you change anything under `web-src/` **before**
+> building the .NET plugin — the C# project embeds the already-built
+> `sync-chat.js`.
+
+## Manual Build and Install
+
+Build the plugin in two steps — first the frontend bundle, then the .NET plugin:
+
+```bash
+# 1. Build the React frontend -> Jellyfin.Plugin.SyncPlayChat/Web/sync-chat.js
+cd web-src
+npm install
+npm run build
+cd ..
+
+# 2. Build/publish the .NET plugin (embeds sync-chat.js)
 mise exec dotnet@9.0 -- dotnet publish Jellyfin.Plugin.SyncPlayChat/Jellyfin.Plugin.SyncPlayChat.csproj -c Release
 ```
+
+If you only changed C# (not the frontend) and `Web/sync-chat.js` is already
+built, step 2 alone is enough.
 
 Output:
 
@@ -72,8 +119,9 @@ Then restart Jellyfin.
 
 ## Releasing a New Version
 
-1. Publish release output:
+1. Build the frontend bundle, then publish release output:
     ```bash
+    (cd web-src && npm install && npm run build)
     dotnet publish Jellyfin.Plugin.SyncPlayChat/Jellyfin.Plugin.SyncPlayChat.csproj -c Release
     ```
 2. Zip the contents of `Jellyfin.Plugin.SyncPlayChat/bin/Release/net9.0/publish/` (not the folder itself):

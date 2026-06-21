@@ -1,0 +1,288 @@
+.floating-chat
+{
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    width: 360px;
+    max-width: 90vw;
+    height: 70vh;
+    max-height: 78vh;
+    padding: 0.5rem 0.75rem 1rem;
+    box-sizing: border-box;
+    pointer-events: none;
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.floating-chat__header
+{
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+    padding: 0.15rem 0.1rem;
+    cursor: grab;
+    touch-action: none;
+}
+
+body.syncplay-chat-dragging,
+body.syncplay-chat-dragging .floating-chat__header
+{
+    cursor: grabbing;
+    user-select: none;
+}
+
+.floating-chat__drag
+{
+    display: inline-flex;
+    align-items: center;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+.floating-chat__header-actions
+{
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.floating-chat__messages
+{
+    pointer-events: auto;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0.5rem 0.1rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+    -webkit-mask-image: linear-gradient(to top, #000 28%, transparent 100%);
+    mask-image: linear-gradient(to top, #000 28%, transparent 100%);
+}
+
+.floating-chat__messages > :first-child
+{
+    margin-top: auto;
+}
+
+.floating-chat__messages::-webkit-scrollbar
+{
+    width: 6px;
+}
+
+.floating-chat__messages::-webkit-scrollbar-thumb
+{
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 3px;
+}
+
+.floating-chat__msg
+{
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    gap: 0.3rem;
+}
+
+.floating-chat__msg--friend
+{
+    justify-content: flex-start;
+}
+
+.floating-chat__msg--self
+{
+    width: 100%;
+    justify-content: flex-start;
+    flex-direction: row-reverse;
+}
+
+.floating-chat__bubble
+{
+    pointer-events: auto;
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    max-width: 80%;
+    box-sizing: border-box;
+    padding: 0.5rem 1rem;
+    border-radius: 0.9rem;
+    background: rgba(20, 20, 25, 0.62);
+    word-break: break-word;
+    line-height: 1.25;
+}
+
+.floating-chat__msg--self .floating-chat__bubble
+{
+    background: rgba(78, 110, 222, 0.62);
+}
+
+.floating-chat__author
+{
+    font-size: 0.72rem;
+    font-weight: 600;
+    opacity: 0.85;
+    user-select: none;
+}
+
+.floating-chat__text
+{
+    white-space: pre-wrap;
+}
+
+.floating-chat__reply
+{
+    display: flex;
+    flex-direction: column;
+    padding: 0.15rem 0.4rem;
+    margin-bottom: 0.15rem;
+    border-left: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 0.25rem;
+    background: rgba(255, 255, 255, 0.08);
+    font-size: 0.74rem;
+}
+
+.floating-chat__reply-author
+{
+    font-weight: 600;
+    opacity: 0.9;
+    user-select: none;
+}
+
+.floating-chat__reply-text
+{
+    opacity: 0.75;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 14rem;
+}
+
+.floating-chat__reply-btn
+{
+    pointer-events: auto;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.2rem;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+}
+
+.floating-chat__msg:hover .floating-chat__reply-btn
+{
+    opacity: 1;
+}
+
+.floating-chat__composer
+{
+    pointer-events: auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.floating-chat__reply-bar
+{
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.5rem;
+    border-radius: 0.7rem;
+    background: rgba(20, 20, 25, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.floating-chat__reply-bar-body
+{
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    font-size: 0.76rem;
+}
+
+.floating-chat__input-row
+{
+    display: flex;
+    align-items: flex-end;
+    gap: 0.25rem;
+    padding: 0.25rem 0.4rem;
+    border-radius: 1.4rem;
+    background: rgba(20, 20, 25, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.floating-chat__input
+{
+    flex: 1 1 auto;
+    min-height: 1.6rem;
+    max-height: 120px;
+    padding: 0.35rem 0.25rem;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font: inherit;
+    line-height: 1.3;
+    resize: none;
+    outline: none;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.floating-chat__input::placeholder
+{
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.floating-chat__icon-btn
+{
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.85);
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+.floating-chat__icon-btn:hover
+{
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.floating-chat__icon-btn--send
+{
+    color: #7aa2ff;
+}
+
+.floating-chat__emoji
+{
+    position: absolute;
+    bottom: calc(100% + 0.4rem);
+    left: 0;
+    right: 0;
+}
