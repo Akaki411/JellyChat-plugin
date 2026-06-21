@@ -12,7 +12,7 @@ export default defineConfig({
         'process.env.NODE_ENV': JSON.stringify('production')
     },
     build: {
-        outDir: resolve(here, '../Jellyfin.Plugin.JellyChat/Web'),
+        outDir: resolve(here, '../Jellyfin.Plugin.JellyChat/web'),
         emptyOutDir: false,
         target: 'es2018',
         minify: 'esbuild',
@@ -21,7 +21,7 @@ export default defineConfig({
             entry: resolve(here, 'src/main.jsx'),
             name: 'JellyChat',
             formats: ['iife'],
-            fileName: () => 'sync-chat.js'
+            fileName: () => 'interface.js'
         },
         rollupOptions: {
             output: {

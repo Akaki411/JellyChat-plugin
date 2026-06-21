@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ChatSwitcher } from './components/ChatSwitcher.jsx'
 import './i18n/index.js'
-import './sync-chat.css'
+import './jelly-chat.css'
 
 
 const getOrCreateRoot = () =>

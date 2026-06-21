@@ -6,30 +6,16 @@ using MediaBrowser.Model.Serialization;
 
 namespace Jellyfin.Plugin.JellyChat;
 
-/// <summary>
-/// The main plugin.
-/// </summary>
-public class Plugin : BasePlugin<PluginConfiguration>
+public class Plugin : BasePlugin<Configuration.Configuration>
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Plugin"/> class.
-    /// </summary>
-    /// <param name="applicationPaths">Instance of the <see cref="IApplicationPaths"/> interface.</param>
-    /// <param name="xmlSerializer">Instance of the <see cref="IXmlSerializer"/> interface.</param>
-    public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer)
-        : base(applicationPaths, xmlSerializer)
+    public Plugin(IApplicationPaths applicationPaths, IXmlSerializer xmlSerializer) : base(applicationPaths, xmlSerializer)
     {
         Instance = this;
     }
 
-    /// <inheritdoc />
     public override string Name => "JellyChat";
 
-    /// <inheritdoc />
-    public override Guid Id => Guid.Parse("a69744cc-2281-48bf-adef-8e451a16ff71");
+    public override Guid Id => Guid.Parse("d3e50ec8-d597-488a-828f-db31d69c095a");
 
-    /// <summary>
-    /// Gets the current plugin instance.
-    /// </summary>
     public static Plugin? Instance { get; private set; }
 }

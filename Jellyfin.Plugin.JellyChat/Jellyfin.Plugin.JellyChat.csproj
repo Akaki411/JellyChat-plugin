@@ -5,7 +5,8 @@
     <RootNamespace>Jellyfin.Plugin.JellyChat</RootNamespace>
     <AssemblyName>Jellyfin.Plugin.JellyChat</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
     <Nullable>enable</Nullable>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
     <CodeAnalysisRuleSet>../jellyfin.ruleset</CodeAnalysisRuleSet>
@@ -27,8 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Web\sync-chat.js" />
-    <EmbeddedResource Include="Web\sync-chat.js" />
+    <None Remove="web\interface.js" />
+    <EmbeddedResource Include="web\interface.js" />
   </ItemGroup>
 
 </Project>

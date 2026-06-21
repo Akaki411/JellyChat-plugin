@@ -4,3 +4,7 @@ obj/
 .idea/
 artifacts
 Web/
+node_modules/
+dist/
+*.log
+.vite/

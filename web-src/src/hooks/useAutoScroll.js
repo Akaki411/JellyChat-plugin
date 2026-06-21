@@ -14,12 +14,11 @@ export const useAutoScroll = (dependency) =>
         pinnedRef.current = distanceFromBottom < 80
     }
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         const node = scrollRef.current
         if (!node) return undefined
 
-        node.addEventListener('scroll', updatePinned, { passive: true })
+        node.addEventListener('scroll', updatePinned, {passive: true})
         return () => node.removeEventListener('scroll', updatePinned)
     }, [])
 
