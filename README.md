@@ -20,7 +20,7 @@ Install JellyChat from plugin repository:
 2. Click **➕** to add a new repository, give it a name (e.g. `JellyChat`), and paste the repository URL:
 
    ```
-   https://raw.githubusercontent.com/Akaki411/JellyChat-plugin/9985fa6e2209edd75f32bbbb21ccfd8c5e7586d5/manifest.json
+   https://raw.githubusercontent.com/Akaki411/JellyChat-plugin/master/manifest.json
    ```
 
 3. Go to **Dashboard → Restart Jellyfin** and let the server come back up.
