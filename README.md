@@ -1,157 +1,101 @@
-# Syncplay Chat
+# JellyChat
 
-`Syncplay Chat` adds a chat button during SyncPlay sessions and sends chat messages as Jellyfin toasts to devices in the same SyncPlay group.
+![JellyFin](https://img.shields.io/badge/JellyFin-10.11-7377C6)
+![DotNET](https://img.shields.io/badge/.net-9.0-5930D9)
+![NodeJS](https://img.shields.io/badge/NodeJS-24.14-5FA04E)
+![Mise](https://img.shields.io/badge/Mise-env-B3627A)
+![License](https://img.shields.io/badge/License-GNU-A42E2B)
 
-https://github.com/user-attachments/assets/69be29fa-b328-45c5-9967-f9582b0dd7d1
+**JellyChat** is a [Jellyfin](https://jellyfin.org/) plugin that adds a lightweight, local chat to your **SyncPlay** rooms.
 
-The chat UI is a small **React + Vite** app (in [`web-src/`](web-src)) that is
-bundled into a single self-contained `sync-chat.js` file. That file is embedded
-into the plugin assembly and injected into the Jellyfin web client as one
-`<script>` tag. All styling lives in one BEM stylesheet
-([`web-src/src/styles/sync-chat.css`](web-src/src/sync-chat.css)) which
-Vite inlines into the bundle at build time.
+![JellyChat demo](assets/preview.png)
 
-## Pre-requisites
-
-- Jellyfin server compatible with `Jellyfin.Controller` / `Jellyfin.Model` `10.11.8`.
-- .NET SDK 9.0 for building the plugin.
-- Node.js 18+ and npm for building the React frontend.
-- Jellyfin [File Transformation](https://github.com/IAmParadox27/jellyfin-plugin-file-transformation) plugin installed and enabled.
-    - Without File Transformation, `sync-chat.js` will not be injected into the web client.
+---
 
 ## Installation
 
-1. In Jellyfin, go to Dashboard > Plugins > Catalog > ⚙️
-2. Click ➕ and give the repository a name (e.g., "Jellfin SyncPlay Chat").
-3. Set the Repository URL to:
-    ```
-    https://raw.githubusercontent.com/AbhayVAshokan/jellyfin-syncplay-chat/master/manifest.json
-    ```
-4. Click Save.
-5. Go to the Catalog tab, find `SyncPlay Chat` in the list, and click Install.
-6. Restart your Jellyfin server to complete the installation.
+Install JellyChat from plugin repository:
 
-## Local Development Deploy
+1. In Jellyfin, open **Menu → Settings → Dashboard → Plugins → Repositories**.
+2. Click **➕** to add a new repository, give it a name (e.g. `JellyChat`), and paste the repository URL:
 
-From repository root:
+   ```
+   https://github.com/Akaki411/JellyChat-plugin/blob/9985fa6e2209edd75f32bbbb21ccfd8c5e7586d5/manifest.json
+   ```
 
-```bash
-./scripts/deploy-dev.sh
-```
+3. Go to **Dashboard → Restart Jellyfin** and let the server come back up.
+4. Open **Dashboard → Plugins → Catalog**, find **JellyChat**, and click **Install**.
+5. Restart Jellyfin again so that the plugin can embed its client, then completely update the web client (`Ctrl+Shift+R`) if necessary.
 
-What it does:
+> Start (or join) a SyncPlay group and the chat button will appear in the player.
 
-- Publishes the solution in Debug.
-- Copies publish output to Jellyfin plugin directory.
+---
 
-Environment overrides:
+## Development setup
 
-```bash
-JELLYFIN_DATA_DIR="$HOME/Library/Application Support/jellyfin" \
-PLUGIN_DIR="$HOME/Library/Application Support/jellyfin/plugins/SyncPlayChat" \
-./scripts/deploy-dev.sh
-```
+The project has two parts: a **React frontend** (`web-src/`) that is bundled into a single `interface.js` and embedded into the plugin, and the **.NET plugin** (`Jellyfin.Plugin.JellyChat/`) that serves and injects it.
 
-Notes:
+### Prerequisites
 
-- `PLUGIN_DIR` takes precedence over `JELLYFIN_DATA_DIR`.
-- Default `JELLYFIN_DATA_DIR` is `$HOME/Library/Application Support/jellyfin`.
-- Restart Jellyfin after deploy.
+- [**mise**](https://mise.jdx.dev/) — manages the .NET SDK pinned in [`mise.toml`](mise.toml) (`dotnet = "9.0"`).
+- [**Node.js 18+**](https://nodejs.org/en) and **npm** — required to build the React frontend (Vite 5).
 
-## Frontend (React + Vite)
+### Build with the scripts
 
-The chat UI source lives in [`web-src/`](web-src). Building it regenerates the
-embedded bundle at `Jellyfin.Plugin.SyncPlayChat/Web/sync-chat.js`.
+Scripts build the frontend and the plugin in one step:
 
-Install dependencies once:
+- **Linux / macOS:**
+  ```bash
+  ./scripts/build-linux.sh
+  ```
+
+- **Windows:**
+  ```bat
+  scripts\build-windows.bat
+  ```
+
+### Build manually
 
 ```bash
-cd web-src
-npm install
-```
-
-Build the bundle (writes `../Jellyfin.Plugin.SyncPlayChat/Web/sync-chat.js`):
-
-```bash
-npm run build
-```
-
-Live preview while editing styles/markup (the widget is forced visible because
-there is no Jellyfin `ApiClient` outside the web client; sending is disabled):
-
-```bash
-npm run dev
-```
-
-> Rebuild the frontend whenever you change anything under `web-src/` **before**
-> building the .NET plugin — the C# project embeds the already-built
-> `sync-chat.js`.
-
-## Manual Build and Install
-
-Build the plugin in two steps — first the frontend bundle, then the .NET plugin:
-
-```bash
-# 1. Build the React frontend -> Jellyfin.Plugin.SyncPlayChat/Web/sync-chat.js
+# 1. Build the React frontend → Jellyfin.Plugin.JellyChat/web/interface.js
 cd web-src
 npm install
 npm run build
 cd ..
 
-# 2. Build/publish the .NET plugin (embeds sync-chat.js)
-mise exec dotnet@9.0 -- dotnet publish Jellyfin.Plugin.SyncPlayChat/Jellyfin.Plugin.SyncPlayChat.csproj -c Release
+# 2. Build/publish the .NET plugin (embeds interface.js)
+mise exec dotnet@9.0 -- dotnet publish Jellyfin.Plugin.JellyChat/Jellyfin.Plugin.JellyChat.csproj -c Release
 ```
 
-If you only changed C# (not the frontend) and `Web/sync-chat.js` is already
-built, step 2 alone is enough.
+#### After the build, the plugin will be available in:
 
-Output:
+```
+Jellyfin.Plugin.JellyChat/bin/Release/net9.0/publish/
+```
 
-- `Jellyfin.Plugin.SyncPlayChat/bin/Release/net9.0/publish/`
+### Deploying a local build
 
-Install manually by copying publish output into a plugin folder such as:
+Copy `Jellyfin.Plugin.JellyChat.dll` into a `JellyChat` subfolder of your Jellyfin **plugins** directory, then restart Jellyfin. The plugins directory depends on the OS:
 
-- macOS: `$HOME/Library/Application Support/jellyfin/plugins/SyncPlayChat`
-- Linux: `$HOME/.local/share/jellyfin/plugins/SyncPlayChat`
-- Windows: `%LOCALAPPDATA%\jellyfin\plugins\SyncPlayChat`
+| Platform | Plugins directory |
+| --- | --- |
+| Windows | `%ProgramData%\Jellyfin\Server\plugins\JellyChat\` |
+| Linux (package) | `/var/lib/jellyfin/plugins/JellyChat/` |
+| Docker | `/config/plugins/JellyChat/` |
+| macOS | `~/.local/share/jellyfin/plugins/JellyChat/` |
 
-Then restart Jellyfin.
+> The DLL is locked while Jellyfin is running, so stop the server before overwriting it. On Windows, Jellyfin is typically launched by the tray app (`Jellyfin.Windows.Tray.exe`) rather than as a service — stop both `jellyfin` and the tray, copy the DLL, then relaunch.
 
-## Releasing a New Version
+Plugin GUID: `d3e50ec8-d597-488a-828f-db31d69c095a`
 
-1. Build the frontend bundle, then publish release output:
-    ```bash
-    (cd web-src && npm install && npm run build)
-    dotnet publish Jellyfin.Plugin.SyncPlayChat/Jellyfin.Plugin.SyncPlayChat.csproj -c Release
-    ```
-2. Zip the contents of `Jellyfin.Plugin.SyncPlayChat/bin/Release/net9.0/publish/` (not the folder itself):
-    ```bash
-    cd Jellyfin.Plugin.SyncPlayChat/bin/Release/net9.0/publish
-    zip -r Jellyfin.Plugin.SyncPlayChat_<version>.zip .
-    ```
-3. Create a new GitHub release with tag `v<version>` (e.g., `v1.0.2.0`).
-4. Attach the zip file (`Jellyfin.Plugin.SyncPlayChat_<version>.zip`) to the release.
-5. Add release notes in the release body describing what changed.
-6. Publish the release.
+---
 
-The `release.yaml` workflow will automatically:
-- Compute the checksum of the attached zip.
-- Prepend a new version entry to `manifest.json`.
-- Update `Directory.Build.props` with the new version.
-- Commit and push to `master`.
+## Gratitude
 
-Plugin ID: `a69744cc-2281-48bf-adef-8e451a16ff71`
+JellyChat is a fork of [**jellyfin-syncplay-chat**](https://github.com/AbhayVAshokan/jellyfin-syncplay-chat) by [**AbhayVAshokan**](https://github.com/AbhayVAshokan). The project uses the core of this chat realisation.
 
-## Troubleshooting
-
-- Chat button does not appear:
-    - Verify user is in an active SyncPlay group.
-    - Verify File Transformation plugin is installed and enabled.
-    - Restart Jellyfin after plugin deploy/update.
-- Messages only appear on one device:
-    - Check browser console for `[SyncPlayChat]` send failure logs.
-    - Confirm target devices are active sessions visible to Jellyfin.
+---
 
 ## License
 
-See `LICENSE`.
+This project is licensed under the **GNU General Public License v3.0**. See the [LICENSE](LICENSE)
