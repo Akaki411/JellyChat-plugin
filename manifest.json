@@ -9,6 +9,14 @@
         "imageUrl": "https://raw.githubusercontent.com/Akaki411/JellyChat-plugin/refs/heads/master/assets/preview.png",
         "versions": [
             {
+                "changelog": "Fix:\n\nFixed the issue of sending replies to messages to other users of the room.\nFeatures:\nAdded support for the mobile interface\nAdded swipe message gesture for quick response\nMinor interface improvements",
+                "targetAbi": "10.11.0.0",
+                "version": "1.1.1.0",
+                "sourceUrl": "https://github.com/Akaki411/JellyChat-plugin/releases/download/Fix-update/JellyChat-1.1.1.0.zip",
+                "checksum": "5396C918C390964F0F12687C3D65AC4C",
+                "timestamp": "2026-06-29T00:00:00"
+            },
+            {
                 "changelog": "Release",
                 "targetAbi": "10.11.0.0",
                 "version": "1.1.0.0",
