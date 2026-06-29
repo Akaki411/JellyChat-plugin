@@ -1,3 +1,9 @@
+:root
+{
+    --jellychat-ar: 1.7778;
+    --jellychat-video-h: min(calc(100vw / var(--jellychat-ar)), calc(100vh / 2));
+}
+
 #syncPlayChatRoot
 {
     font-family: 'Segoe UI', system-ui, -apple-system, Roboto, Helvetica, Arial, sans-serif;
@@ -66,12 +72,14 @@
     background: transparent;
     color: #fff;
     cursor: pointer;
-    transition: background 0.12s ease;
+    opacity: 0.9;
+    transition: 0.2s;
 }
 
 .syncplay-switch__button:hover
 {
-    background: rgba(40, 40, 50, 0.75);
+    opacity: 1;
+    transition: 0.2s;
 }
 
 .syncplay-switch__menu
@@ -192,6 +200,38 @@
     transition: background 0.1s ease;
 }
 
-.syncplay-emoji__item:hover {
+.syncplay-emoji__item:hover
+{
     background: rgba(255, 255, 255, 0.12);
+}
+
+
+@media (max-width: 640px)
+{
+    html.jellychat-mobile-docked .skinHeader,
+    html.jellychat-mobile-docked .osdHeader,
+    html.jellychat-mobile-docked .mainAnimatedPages,
+    html.jellychat-mobile-docked .backgroundContainer,
+    html.jellychat-mobile-docked .skinBody,
+    html.jellychat-mobile-docked .videoPlayerContainer,
+    html.jellychat-mobile-docked .videoOsdBottom,
+    html.jellychat-mobile-docked .upNextContainer
+    {
+        width: 100% !important;
+        right: auto !important;
+        left: 0 !important;
+    }
+
+    html.jellychat-mobile-docked .videoPlayerContainer
+    {
+        top: 0 !important;
+        bottom: auto !important;
+        height: var(--jellychat-video-h) !important;
+    }
+
+    html.jellychat-mobile-docked .videoOsdBottom
+    {
+        top: auto !important;
+        bottom: calc(100vh - var(--jellychat-video-h)) !important;
+    }
 }

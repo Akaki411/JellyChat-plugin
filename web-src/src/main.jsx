@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ChatSwitcher } from './components/ChatSwitcher.jsx'
+import { installViewportInsets, installVideoAspectTracking } from './lib/viewport.js'
 import './i18n/index.js'
 import './jelly-chat.css'
 
@@ -22,6 +23,9 @@ const start = () =>
 {
     if (window.__syncPlayChatLoaded) return
     window.__syncPlayChatLoaded = true
+
+    installViewportInsets()
+    installVideoAspectTracking()
 
     const forceShow = Boolean(import.meta.env && import.meta.env.DEV)
 

@@ -43,19 +43,15 @@
 
 .fixed-chat__header
 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
+    justify-content: end;
     padding: 0.6rem 0.8rem;
-    border-bottom: 1px solid #FFFFFF14;
-    background: var(--jellychat-fixed-chat_bg-card);
-}
-
-.fixed-chat__title
-{
-    font-weight: 600;
-    font-size: 0.95rem;
+    z-index: 100;
 }
 
 .fixed-chat__header-actions
@@ -63,6 +59,7 @@
     display: flex;
     align-items: center;
     gap: 0.25rem;
+    z-index: 1000;
 }
 
 .fixed-chat__messages
@@ -78,10 +75,26 @@
 
 .fixed-chat__msg
 {
+    position: relative;
     display: flex;
     align-items: flex-end;
     gap: 0.3rem;
     max-width: 100%;
+    touch-action: pan-y;
+}
+
+.fixed-chat__swipe
+{
+    position: absolute;
+    right: 0.35rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(233, 238, 242, 0.85);
+    pointer-events: none;
+    opacity: 0;
 }
 
 .fixed-chat__msg--friend
@@ -153,11 +166,11 @@
 
 .fixed-chat__reply-text
 {
-    opacity: 0.8;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 16rem;
+    color: #DFDFDF;
 }
 
 .fixed-chat__reply-btn
@@ -255,16 +268,17 @@
     height: 2.1rem;
     border: none;
     border-radius: 50%;
-    background: transparent;
+    background: var(--jellychat-fixed-chat_bg-input);
     color: rgba(233, 238, 242, 0.8);
     cursor: pointer;
     transition: background 0.12s ease, color 0.12s ease;
+    opacity: 0.9;
 }
 
 .fixed-chat__icon-btn:hover
 {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
+    opacity: 1;
+    transition: 0.2s;
 }
 
 .fixed-chat__emoji
@@ -334,7 +348,7 @@
     --jellychat-fixed-chat_bg-main:  #101010;
     --jellychat-fixed-chat_bg-card:  #202020;
     --jellychat-fixed-chat_bg-input: #292929;
-    --jellychat-fixed-chat_resizer:  #5CA2D780;
+    --jellychat-fixed-chat_resizer:  #9962BD80;
     --jellychat-fixed-chat_bubble:   #202020;
     --jellychat-fixed-chat_accent:   linear-gradient(120deg, #9962BD, #5B9FD6);
 }
@@ -392,9 +406,9 @@
 .fixed-chat[data-scheme='vine']
 {
     --jellychat-fixed-chat_bg-main:  radial-gradient(circle at 75% 25%, #762337 0%, #6E1833 20%, #11060A 80%, #1E0910 100%);
-    --jellychat-fixed-chat_bg-card:  linear-gradient(45deg, #2A191F, #301B22);
+    --jellychat-fixed-chat_bg-card:  #301B22;
     --jellychat-fixed-chat_bg-input: linear-gradient(75deg, #211B1D, #201A1C);
-    --jellychat-fixed-chat_resizer:  #3FC1B080;
+    --jellychat-fixed-chat_resizer:  #62050F80;
     --jellychat-fixed-chat_bubble:   linear-gradient(45deg, #2A191F, #301B22);
     --jellychat-fixed-chat_accent:   linear-gradient(45deg, #62050F, #5E070D);
 }
@@ -416,4 +430,48 @@ body.syncplay-chat-resizing
 {
     cursor: ew-resize !important;
     user-select: none;
+}
+
+@media (hover: none)
+{
+    .fixed-chat__reply-btn
+    {
+        opacity: 1;
+    }
+}
+
+
+@media (max-width: 1024px)
+{
+    .fixed-chat
+    {
+        top: var(--jellychat-video-h);
+        bottom: var(--jellychat-kb, 0px);
+        left: 0;
+        right: 0;
+        width: 100vw !important;
+        height: auto;
+        max-height: none;
+        border-left: none;
+        border-top: 1px solid #FFFFFF14;
+        border-radius: 0;
+        box-shadow: 0 -8px 24px #00000059;
+    }
+
+    .fixed-chat__header
+    {
+        background-color: transparent;
+        justify-content: end;
+        border-bottom: 0;
+    }
+    .fixed-chat__icon-btn
+    {
+        background: var(--jellychat-fixed-chat_bg-input);
+        color: #ffffff;
+    }
+
+    .fixed-chat__resizer
+    {
+        display: none;
+    }
 }

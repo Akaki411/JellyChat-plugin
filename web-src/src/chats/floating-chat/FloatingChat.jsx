@@ -5,6 +5,7 @@ import { VariantSwitch } from '../../components/VariantSwitch.jsx'
 import { EmojiKeyboard } from '../../components/EmojiKeyboard.jsx'
 import { useComposer } from '../../hooks/useComposer.js'
 import { useAutoScroll } from '../../hooks/useAutoScroll.js'
+import { useSwipeReply } from '../../hooks/useSwipeReply.js'
 import './floating-chat.css'
 
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value))
@@ -19,6 +20,19 @@ export const FloatingChat = ({ chat, variants, currentVariant, onSelectVariant, 
     const dragRef = useRef(null)
     const composer = useComposer({ onSend: sendMessage })
     const scrollRef = useAutoScroll(messages)
+
+    const handleReply = (message) =>
+    {
+        setReplyingTo(message)
+        composer.focusInput()
+    }
+
+    useEffect(() =>
+    {
+        const root = document.documentElement
+        root.classList.add('jellychat-mobile-docked')
+        return () => root.classList.remove('jellychat-mobile-docked')
+    }, [])
 
     useEffect(() =>
     {
@@ -54,6 +68,7 @@ export const FloatingChat = ({ chat, variants, currentVariant, onSelectVariant, 
     const startDrag = (event) =>
     {
         if (event.target.closest('button')) return
+        if (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) return
 
         const node = rootRef.current
         if (!node) return
@@ -69,18 +84,14 @@ export const FloatingChat = ({ chat, variants, currentVariant, onSelectVariant, 
         setEmojiOpen(emoji !== "")
     }
 
-    const style = position
-        ? { left: `${position.left}px`, top: `${position.top}px`, right: 'auto', bottom: 'auto' }
-        : undefined
-
     return (
-        <div className="floating-chat" ref={rootRef} style={style}>
+        <div className="floating-chat" ref={rootRef} style={position ? {'--floating-chat-left': `${position.left}px`, '--floating-chat-top': `${position.top}px`} : undefined}>
             <div className="floating-chat__header" onPointerDown={startDrag}>
                 <span className="floating-chat__drag" aria-hidden="true">
                     <IconGripVertical size={16} />
                 </span>
                 <div className="floating-chat__header-actions">
-                    <VariantSwitch variants={variants} current={currentVariant} onSelect={onSelectVariant} />
+                    <VariantSwitch variants={variants} current={currentVariant} onSelect={onSelectVariant} blur/>
                     <button
                         type="button"
                         className="floating-chat__icon-btn"
@@ -95,7 +106,7 @@ export const FloatingChat = ({ chat, variants, currentVariant, onSelectVariant, 
 
             <div className="floating-chat__messages" ref={scrollRef}>
                 {messages.map((message) => {
-                    return <Message key={message.id} message={message} onReply={setReplyingTo}/>
+                    return <Message key={message.id} message={message} onReply={handleReply}/>
                 })}
             </div>
 
@@ -166,16 +177,27 @@ const Message = ({
 }) => {
     const sizes = {1: "64px", 2: "48px", 3: "48px", 4: "48px", 5: "32px", 6: "24px", 7: "20px", 8: "20px"};
     const {t} = useTranslation()
+    const swipe = useSwipeReply(() => onReply(message))
     const segments = [...new Intl.Segmenter().segment(message.text.trim().replace(" ", ""))];
     const isEmoji = segments.every(segment => (/\p{Emoji}+/u.test(segment.segment)))
     if (isEmoji) message.text = message.text.trim().replace(" ", "")
+
+    const bubbleStyle = {
+        ...(isEmoji ? {background: "transparent"} : {}),
+        transform: swipe.offset ? `translateX(-${swipe.offset}px)` : undefined,
+        transition: swipe.dragging ? 'none' : 'transform 0.18s ease'
+    }
 
     return (
         <div
             key={message.id}
             className={"floating-chat__msg" +  (message.self ? ' floating-chat__msg--self' : ' floating-chat__msg--friend')}
+            {...swipe.handlers}
         >
-            <div className="floating-chat__bubble" style={isEmoji ? {background: "transparent"} : {}}>
+            <span className="floating-chat__swipe" style={{opacity: swipe.progress, color: swipe.reached ? '#7aa2ff' : undefined}} aria-hidden="true">
+                <IconArrowBackUp size={16} />
+            </span>
+            <div className="floating-chat__bubble" style={bubbleStyle}>
                 {message.replyTo && (
                     <div className="floating-chat__reply">
                         <span className="floating-chat__reply-author">{message.replyTo.author}</span>

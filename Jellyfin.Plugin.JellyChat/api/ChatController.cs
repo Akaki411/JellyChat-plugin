@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaBrowser.Common.Api;
@@ -56,6 +58,7 @@ public class ChatController : ControllerBase
 
         string header = string.IsNullOrWhiteSpace(request.Header) ? DefaultHeader : request.Header.Trim();
         int timeoutMs = request.TimeoutMs is > 0 ? request.TimeoutMs.Value : DefaultTimeoutMs;
+        MessageReply? replyTo = request.ReplyTo;
 
         Guid userId = ResolveCurrentUserId();
         if (userId == Guid.Empty)
@@ -87,12 +90,17 @@ public class ChatController : ControllerBase
             return Ok(new ChatResponse());
         }
 
-        MessageCommand command = new MessageCommand
+        GeneralCommand command = new GeneralCommand
         {
-            Header = header,
-            Text = text,
-            TimeoutMs = timeoutMs
+            Name = GeneralCommandType.DisplayMessage
         };
+        command.Arguments["Header"] = header;
+        command.Arguments["Text"] = text;
+        command.Arguments["TimeoutMs"] = timeoutMs.ToString(CultureInfo.InvariantCulture);
+        if (replyTo is not null && (!string.IsNullOrWhiteSpace(replyTo.Author) || !string.IsNullOrWhiteSpace(replyTo.Text)))
+        {
+            command.Arguments["ReplyTo"] = JsonSerializer.Serialize(replyTo);
+        }
 
         int sent = 0;
         int failed = 0;
@@ -101,7 +109,7 @@ public class ChatController : ControllerBase
         {
             try
             {
-                await _sessionManager.SendMessageCommand(
+                await _sessionManager.SendGeneralCommand(
                     controllingSessionId,
                     sessionId,
                     command,

@@ -1,8 +1,7 @@
 .floating-chat
 {
     position: fixed;
-    right: 0;
-    bottom: 0;
+    inset: var(--floating-chat-top, 30vh) 0 0 var(--floating-chat-left, calc(100vw - 360px));
     display: flex;
     flex-direction: column;
     width: 360px;
@@ -18,6 +17,10 @@
 
 .floating-chat__header
 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
     pointer-events: auto;
     display: flex;
     align-items: center;
@@ -27,6 +30,7 @@
     padding: 0.15rem 0.1rem;
     cursor: grab;
     touch-action: none;
+    z-index: 1000;
 }
 
 body.syncplay-chat-dragging,
@@ -84,10 +88,26 @@ body.syncplay-chat-dragging .floating-chat__header
 
 .floating-chat__msg
 {
+    position: relative;
     width: 100%;
     display: flex;
     align-items: flex-end;
     gap: 0.3rem;
+    touch-action: pan-y;
+}
+
+.floating-chat__swipe
+{
+    position: absolute;
+    right: 0.35rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.85);
+    pointer-events: none;
+    opacity: 0;
 }
 
 .floating-chat__msg--friend
@@ -285,4 +305,43 @@ body.syncplay-chat-dragging .floating-chat__header
     bottom: calc(100% + 0.4rem);
     left: 0;
     right: 0;
+}
+
+@media (hover: none)
+{
+    .floating-chat__reply-btn
+    {
+        opacity: 1;
+    }
+}
+
+@media (max-width: 1024px)
+{
+    .floating-chat
+    {
+        inset: var(--jellychat-video-h) 0 0 0; !important;
+        width: 100vw;
+        max-width: 100vw;
+        height: auto;
+        max-height: none;
+        padding: 0.35rem 0.6rem 0.6rem;
+        border-radius: 0;
+        background: #050505;
+    }
+
+    .floating-chat__header
+    {
+        cursor: default;
+        justify-content: end;
+    }
+
+    .floating-chat__drag
+    {
+        display: none;
+    }
+
+    .floating-chat__bubble
+    {
+        max-width: 86%;
+    }
 }

@@ -5,17 +5,18 @@ import { VariantSwitch } from '../../components/VariantSwitch.jsx'
 import { EmojiKeyboard } from '../../components/EmojiKeyboard.jsx'
 import { useComposer } from '../../hooks/useComposer.js'
 import { useAutoScroll } from '../../hooks/useAutoScroll.js'
+import { useSwipeReply } from '../../hooks/useSwipeReply.js'
 import { getNickColor } from '../../lib/colors.js'
 import './fixed-chat.css'
 
 const SCHEMES = {
-    jellyfin: {accent: '#7376C5', background: '#202020'},
-    blue:     {accent: '#4aa3df', background: '#17212b'},
-    orange:   {accent: '#f0823c', background: '#2F2B28'},
-    purple:   {accent: '#9a6bef', background: '#191919'},
-    green:    {accent: '#4fae6c', background: '#191919'},
-    azure:    {accent: '#3FC1B0', background: '#282E33'},
-    vine:     {accent: '#A82227', background: 'linear-gradient(45deg, #2A191F, #301B22)'}
+    jellyfin: {accent: '#7376C5', input: "#292929", background: '#202020'},
+    blue:     {accent: '#4aa3df', input: "#242F3D", background: '#17212b'},
+    orange:   {accent: '#f0823c', input: "#413E39", background: '#2F2B28'},
+    purple:   {accent: '#9a6bef', input: "#252525", background: '#191919'},
+    green:    {accent: '#4fae6c', input: "#252525", background: '#191919'},
+    azure:    {accent: '#3FC1B0', input: "#3D444B", background: '#282E33'},
+    vine:     {accent: '#A82227', input: "linear-gradient(75deg, #211B1D, #201A1C)", background: 'linear-gradient(45deg, #2A191F, #301B22)'}
 }
 
 export const FixedChat = ({ chat, variants, currentVariant, onSelectVariant, onCollapse }) =>
@@ -30,6 +31,12 @@ export const FixedChat = ({ chat, variants, currentVariant, onSelectVariant, onC
     const scrollRef = useAutoScroll(messages)
     const draggingRef = useRef(false)
 
+    const handleReply = (message) =>
+    {
+        setReplyingTo(message)
+        composer.focusInput()
+    }
+
     useEffect(() =>
     {
         localStorage.setItem("fixed-chat_scheme", scheme)
@@ -40,10 +47,12 @@ export const FixedChat = ({ chat, variants, currentVariant, onSelectVariant, onC
         const root = document.documentElement
         root.style.setProperty('--syncplay-chat-width', `${width}px`)
         root.classList.add('syncplay-chat-pushed')
+        root.classList.add('jellychat-mobile-docked')
 
         return () =>
         {
             root.classList.remove('syncplay-chat-pushed')
+            root.classList.remove('jellychat-mobile-docked')
             root.style.removeProperty('--syncplay-chat-width')
         }
     }, [width])
@@ -104,18 +113,16 @@ export const FixedChat = ({ chat, variants, currentVariant, onSelectVariant, onC
             />
 
             <div className="fixed-chat__header">
-                <span className="fixed-chat__title">JellyChat</span>
                 <div className="fixed-chat__header-actions">
                     <div className="fixed-chat__scheme">
-                        <button
-                            type="button"
+                        <div
                             className="fixed-chat__icon-btn"
                             aria-label={t('actions.colorScheme')}
                             title={t('actions.colorScheme')}
                             onClick={() => setSchemeMenuOpen((prev) => !prev)}
                         >
                             <IconPalette size={18} />
-                        </button>
+                        </div>
                         {schemeMenuOpen && (
                             <div className="fixed-chat__scheme-menu">
                                 {Object.keys(SCHEMES).map((item) => (
@@ -133,7 +140,7 @@ export const FixedChat = ({ chat, variants, currentVariant, onSelectVariant, onC
                             </div>
                         )}
                     </div>
-                    <VariantSwitch accent={SCHEMES[scheme]?.accent} background={SCHEMES[scheme]?.background} variants={variants} current={currentVariant} onSelect={onSelectVariant} />
+                    <VariantSwitch accent={SCHEMES[scheme]?.accent} background={SCHEMES[scheme]?.input} variants={variants} current={currentVariant} onSelect={onSelectVariant} />
                     <button
                         type="button"
                         className="fixed-chat__icon-btn"
@@ -148,7 +155,7 @@ export const FixedChat = ({ chat, variants, currentVariant, onSelectVariant, onC
 
             <div className="fixed-chat__messages" ref={scrollRef}>
                 {messages.map((message) => {
-                    return <Message key={message.id} message={message} onReply={setReplyingTo}/>
+                    return <Message key={message.id} message={message} onReply={handleReply}/>
                 })}
             </div>
 
@@ -206,13 +213,23 @@ const Message = ({
 }) => {
     const sizes = {1: "64px", 2: "48px", 3: "48px", 4: "32px", 5: "24px", 6: "24px", 7: "20px"};
     const {t} = useTranslation()
+    const swipe = useSwipeReply(() => onReply(message))
     const segments = [...new Intl.Segmenter().segment(message.text.trim().replace(" ", ""))];
     const isEmoji = segments.every(segment => (/\p{Emoji}+/u.test(segment.segment)))
     if (isEmoji) message.text = message.text.trim().replace(" ", "")
 
+    const bubbleStyle = {
+        background: isEmoji ? "transparent" : "",
+        transform: swipe.offset ? `translateX(-${swipe.offset}px)` : undefined,
+        transition: swipe.dragging ? 'none' : 'transform 0.18s ease'
+    }
+
     return (
-        <div key={message.id} className={message.self ? 'fixed-chat__msg fixed-chat__msg--self' : 'fixed-chat__msg fixed-chat__msg--friend'}>
-            <div className="fixed-chat__bubble" style={{background: isEmoji ? "transparent" : ""}}>
+        <div key={message.id} className={message.self ? 'fixed-chat__msg fixed-chat__msg--self' : 'fixed-chat__msg fixed-chat__msg--friend'} {...swipe.handlers}>
+            <span className="fixed-chat__swipe" style={{opacity: swipe.progress, color: swipe.reached ? '#7aa2ff' : undefined}} aria-hidden="true">
+                <IconArrowBackUp size={16} />
+            </span>
+            <div className="fixed-chat__bubble" style={bubbleStyle}>
                 {!message.self && (
                     <span className="fixed-chat__author" style={{color: getNickColor(message.author)}}>
                         {message.author}

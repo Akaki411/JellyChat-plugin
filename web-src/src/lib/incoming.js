@@ -11,6 +11,34 @@ const findWebSocket = () =>
     return client._webSocket || client.webSocket || (client._serverInfo && client._serverInfo.webSocket) || null
 }
 
+const parseReplyTo = (value) =>
+{
+    let payload = value
+
+    if (typeof value === 'string')
+    {
+        const trimmed = value.trim()
+        if (!trimmed) return null
+
+        try
+        {
+            payload = JSON.parse(trimmed)
+        }
+        catch (err)
+        {
+            return null
+        }
+    }
+
+    if (!payload || typeof payload !== 'object') return null
+
+    const author = payload.author || payload.Author || ''
+    const text = payload.text || payload.Text || ''
+    if (!author && !text) return null
+
+    return { author: String(author), text: String(text) }
+}
+
 const parseChatLine = (text) =>
 {
     const raw = typeof text === 'string' ? text : ''
@@ -35,7 +63,7 @@ const extractDisplayMessage = (payload) =>
     if (args.Header !== CHAT_HEADER) return null
 
     const line = parseChatLine(args.Text)
-    return { ...line, raw: typeof args.Text === 'string' ? args.Text.trim() : '' }
+    return { ...line, raw: typeof args.Text === 'string' ? args.Text.trim() : '', replyTo: parseReplyTo(args.ReplyTo) }
 }
 
 const suppressedLines = new Set()
@@ -113,7 +141,7 @@ export const subscribeIncoming = (onMessage) =>
             if (!message || !message.text) return
 
             suppressChatToast(message.raw)
-            onMessage({ author: message.author, text: message.text })
+            onMessage({ author: message.author, text: message.text, replyTo: message.replyTo })
         }
         catch (err)
         {

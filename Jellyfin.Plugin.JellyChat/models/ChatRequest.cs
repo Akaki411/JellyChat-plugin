@@ -6,6 +6,7 @@ public class ChatRequest
     public string? SenderSessionId { get; set; }
     public string? Header { get; set; }
     public string? Text { get; set; }
+    public MessageReply? ReplyTo { get; set; }
     public int? TimeoutMs { get; set; }
     public string? ParticipantsCsv { get; set; }
 }

@@ -7,6 +7,7 @@ export const VariantSwitch = ({
     current = "",
     accent = "#FFFFFF",
     background = "#20202020",
+    blur = false,
     onSelect = () => {}
 }) => {
     const { t } = useTranslation()
@@ -34,11 +35,11 @@ export const VariantSwitch = ({
 
     return (
         <div className="syncplay-switch" ref={rootRef}>
-            <div className="syncplay-switch__button" aria-label={t('actions.switchLayout')} title={t('actions.switchLayout')} onClick={() => setOpen((prev) => !prev)}>
+            <div className="syncplay-switch__button" style={{background}} aria-label={t('actions.switchLayout')} title={t('actions.switchLayout')} onClick={() => setOpen((prev) => !prev)}>
                 <IconArrowsExchange size={18} />
             </div>
             {open && (
-                <div className="syncplay-switch__menu" style={{background: background}}>
+                <div className="syncplay-switch__menu" style={{background: background, backdropFilter: blur ? "blur(6px)" : null}}>
                     {Object.entries(variants).map(([key, variant]) => (
                         <Button key={key} accent={accent} isActive={key === current} label={t('variants.' + key, variant.label)} onClick={handleSelect} value={key}/>
                     ))}

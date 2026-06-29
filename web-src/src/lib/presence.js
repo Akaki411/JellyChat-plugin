@@ -472,13 +472,14 @@ const fetchSessions = async () =>
     return dedupedSessions
 };
 
-const sendMessageViaServer = async (text, senderSessionId, groupId, participants) =>
+const sendMessageToServer = async (text, replyTo, senderSessionId, groupId, participants) =>
 {
     const response = await postJson('SyncPlayChat/Send', {
         GroupId: groupId || '',
         SenderSessionId: senderSessionId || '',
         Header: 'SyncPlay Chat',
         Text: text,
+        ReplyTo: replyTo || null,
         TimeoutMs: 4000,
         ParticipantsCsv: (participants || []).join(',')
     }, true)
@@ -553,7 +554,7 @@ export const isCurrentUserInSyncPlayGroup = async () =>
     return false
 }
 
-export const sendChatMessage = async (chatText) =>
+export const sendChatMessage = async (chatText, replyTo) =>
 {
     const trimmedText = typeof chatText === 'string' ? chatText.trim() : ''
     if (!trimmedText) return { attempted: 0, sent: 0, failed: 0 }
@@ -590,11 +591,7 @@ export const sendChatMessage = async (chatText) =>
     const participantsForSend = extractParticipantsFromGroups(groupsForDetailLookup.length > 0 ? groupsForDetailLookup : groups)
     const preferredGroupId = groupIds.length > 0 ? groupIds[0] : resolveSyncPlayGroupId(groupsForDetailLookup[0] || groups[0])
 
-    const result = await sendMessageViaServer(
-        messageText,
-        currentSession && currentSession.Id,
-        preferredGroupId,
-        participantsForSend)
+    const result = await sendMessageToServer(messageText, replyTo, currentSession && currentSession.Id, preferredGroupId, participantsForSend)
 
     logDebug('Sync chat send result', result)
     return result

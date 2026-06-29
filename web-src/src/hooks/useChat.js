@@ -62,9 +62,7 @@ export const useChat = ({ mock = false } = {}) =>
     {
         setMessages((prev) =>
         {
-            const next = prev.length >= MAX_MESSAGES
-                ? prev.slice(prev.length - MAX_MESSAGES + 1)
-                : prev.slice()
+            const next = prev.length >= MAX_MESSAGES ? prev.slice(prev.length - MAX_MESSAGES + 1) : prev.slice()
             next.push(message)
             return next
         })
@@ -88,16 +86,16 @@ export const useChat = ({ mock = false } = {}) =>
         })
         setReplyingTo(null)
 
-        sendChatMessage(trimmed).catch((err) => logDebug('Failed to send chat message', err))
+        sendChatMessage(trimmed, reply ? { Author: reply.author, Text: reply.text } : null).catch((err) => logDebug('Failed to send chat message', err))
     }, [replyingTo, pushMessage])
 
 
     useEffect(() =>
     {
-        const unsubscribe = subscribeIncoming(({ author, text }) =>
+        const unsubscribe = subscribeIncoming(({ author, text,  replyTo}) =>
         {
             if (consumeOwnEcho(text)) return
-            pushMessage({ id: nextId(), author, text, self: false, ts: Date.now(), replyTo: null })
+            pushMessage({ id: nextId(), author, text, self: false, ts: Date.now(), replyTo: replyTo })
         })
 
         return unsubscribe
